@@ -42,21 +42,23 @@ async function submitForm(event) {
     const szoveg = `**⚡ Új Jelentkezés — Chaos SMP**\n🎮 Minecraft név: ${username}\n💬 Discord: ${discord}\n🎂 Kor: ${age}\n📝 Miért akar csatlakozni: ${reason}\n📢 Honnan hallott rólunk: ${source}`;
 
     try {
-        //await navigator.clipboard.writeText(szoveg);
         // Sikeres másolás — megmutatjuk a popup-ot
-        await fetch("https://discord.com/api/webhooks/1492134642499977237/tW8qjsKRpWIqIjaMixJGL03FYvn4WW5n_3UAC2jGs86H_Bq4n6GOTejVKPjBS8mT20N-", {
+        await fetch(`https://discord.com/api/webhooks/1492134642499977237/tW8qjsKRpWIqIjaMixJGL03FYvn4WW5n_3UAC2jGs86H_Bq4n6GOTejVKPjBS8mT20N-`, {
             body: JSON.stringify({
-                content:`minecraft név: ${username}\ndiscord username:${discord}\néletkor:${age}\nok:${reason}\nhonnan:${source}`,
+                content: szoveg,
+                thread_name: `${String(discord).at(0).toUpperCase() + String(discord).substring(1)} Jelentjezése`
             }),
             headers: {
                 "Content-Type": "application/json",
             },
             method: "POST",
+        }).catch(err => {
+            console.log(err);
         });
         document.getElementById('success-popup').style.display = 'flex';
         document.getElementById('jelentkezes-form').reset();
     } catch(e) {
-        // Ha a clipboard nem elérhető, csak megmutatjuk a popupot
+        // Ha a webhook nem elérhető, csak megmutatjuk a popupot
         document.getElementById('success-popup').style.display = 'flex';
     }
 
