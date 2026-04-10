@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chaos SMP</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sculk-dark: #050e0f;
+    --sculk-mid: #0a1f22;
+    --sculk-teal: #1adfcf;
+    --sculk-teal2: #0fa89b;
+    --sculk-teal3: #0d6e65;
+    --sculk-accent: #00fff7;
+    --sculk-glow: rgba(26,223,207,0.18);
+    --sculk-amber: #e0a020;
+    --sculk-copper: #c06040;
+    --sculk-panel: rgba(10,31,34,0.85);
+    --sculk-border: rgba(26,223,207,0.25);
+    --text-bright: #e8f8f7;
+    --text-muted: #6bbdb7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Exo 2', sans-serif;
+    background: var(--sculk-dark);
+    color: var(--text-bright);
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* Sculk pixel pattern background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 7px, rgba(26,223,207,0.03) 8px),
+      repeating-linear-gradient(90deg, transparent, transparent 7px, rgba(26,223,207,0.03) 8px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    height: 64px;
+    background: rgba(5,14,15,0.92);
+    border-bottom: 1px solid var(--sculk-border);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-logo {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 13px;
+    color: var(--sculk-teal);
+    text-shadow: 0 0 12px var(--sculk-teal);
+    letter-spacing: 2px;
+  }
+  .nav-logo span { color: var(--sculk-amber); }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--sculk-teal); }
+
+  .nav-social {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .nav-social a {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--sculk-border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all .2s;
+  }
+  .nav-social a:hover {
+    border-color: var(--sculk-teal);
+    color: var(--sculk-teal);
+    box-shadow: 0 0 8px var(--sculk-glow);
+  }
+
+  /* ─── HERO ─── */
+  #home {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 2rem 4rem;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 60%, rgba(13,110,101,0.22) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 50% 50%, rgba(26,223,207,0.08) 0%, transparent 60%);
+    z-index: 0;
+  }
+
+  /* Sculk vein lines */
+  .sculk-veins {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.13;
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .hero-badge {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--sculk-amber);
+    letter-spacing: 3px;
+    background: rgba(224,160,32,0.08);
+    border: 1px solid rgba(224,160,32,0.3);
+    padding: 8px 18px;
+    border-radius: 4px;
+    animation: pulse-badge 3s ease-in-out infinite;
+  }
+  @keyframes pulse-badge {
+    0%,100% { box-shadow: 0 0 0 rgba(224,160,32,0); }
+    50% { box-shadow: 0 0 14px rgba(224,160,32,0.25); }
+  }
+
+  .hero-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    animation: hero-in 1s cubic-bezier(.16,1,.3,1) both;
+  }
+  @keyframes hero-in {
+    from { opacity: 0; transform: translateY(30px) scale(.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .hero-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+    color: var(--sculk-teal);
+    text-shadow:
+      0 0 20px var(--sculk-teal),
+      0 0 60px rgba(26,223,207,0.35),
+      4px 4px 0 rgba(13,110,101,0.8),
+      8px 8px 0 rgba(5,14,15,0.8);
+    line-height: 1.1;
+    letter-spacing: 4px;
+  }
+
+  .hero-sub {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(1rem, 3vw, 1.8rem);
+    color: var(--sculk-copper);
+    text-shadow:
+      0 0 10px rgba(192,96,64,0.5),
+      2px 2px 0 rgba(80,30,10,0.8);
+    margin-top: -6px;
+  }
+
+  .hero-desc {
+    max-width: 540px;
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    font-weight: 300;
+    animation: hero-in 1s .2s cubic-bezier(.16,1,.3,1) both;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: hero-in 1s .35s cubic-bezier(.16,1,.3,1) both;
+  }
+
+  .btn-primary {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    padding: 14px 28px;
+    background: var(--sculk-teal3);
+    color: var(--sculk-accent);
+    border: 2px solid var(--sculk-teal);
+    border-radius: 4px;
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: all .2s;
+    box-shadow: 0 0 16px rgba(26,223,207,0.2), inset 0 0 12px rgba(26,223,207,0.05);
+  }
+  .btn-primary:hover {
+    background: var(--sculk-teal2);
+    box-shadow: 0 0 28px rgba(26,223,207,0.4), inset 0 0 20px rgba(26,223,207,0.1);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    padding: 14px 28px;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--sculk-border);
+    border-radius: 4px;
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: all .2s;
+  }
+  .btn-secondary:hover {
+    border-color: var(--sculk-teal);
+    color: var(--sculk-teal);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    margin-top: 1rem;
+    animation: hero-in 1s .5s cubic-bezier(.16,1,.3,1) both;
+  }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 20px;
+    color: var(--sculk-teal);
+    display: block;
+    text-shadow: 0 0 10px var(--sculk-teal);
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* scroll indicator */
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: .45;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  .scroll-hint span { font-size: 10px; letter-spacing: 3px; color: var(--text-muted); text-transform: uppercase; }
+  @keyframes bounce {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+
+  /* ─── SECTIONS COMMON ─── */
+  section { position: relative; z-index: 1; }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+  }
+  .section-tag {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--sculk-teal);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    opacity: .7;
+    display: block;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    color: var(--text-bright);
+    text-shadow: 0 0 20px rgba(26,223,207,0.2);
+    line-height: 1.5;
+  }
+  .section-divider {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--sculk-teal), transparent);
+    margin: 1.2rem auto 0;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* ─── LEADERBOARD ─── */
+  #players {
+    padding: 6rem 0;
+    background: linear-gradient(180deg, transparent, rgba(10,31,34,0.4), transparent);
+  }
+
+  .leaderboard-wrap {
+    background: var(--sculk-panel);
+    border: 1px solid var(--sculk-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .lb-header {
+    display: grid;
+    grid-template-columns: 60px 1fr 120px 120px 120px;
+    padding: 12px 24px;
+    background: rgba(26,223,207,0.06);
+    border-bottom: 1px solid var(--sculk-border);
+    font-size: 10px;
+    font-family: 'Press Start 2P', monospace;
+    color: var(--sculk-teal);
+    letter-spacing: 1px;
+  }
+
+  .lb-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 120px 120px 120px;
+    padding: 14px 24px;
+    border-bottom: 1px solid rgba(26,223,207,0.07);
+    align-items: center;
+    transition: background .2s;
+    cursor: default;
+  }
+  .lb-row:last-child { border-bottom: none; }
+  .lb-row:hover { background: rgba(26,223,207,0.04); }
+
+  .lb-row.gold { background: rgba(224,160,32,0.06); }
+  .lb-row.silver { background: rgba(180,180,200,0.04); }
+  .lb-row.bronze { background: rgba(180,110,60,0.04); }
+
+  .lb-rank {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    text-align: center;
+  }
+  .lb-row.gold .lb-rank { color: var(--sculk-amber); text-shadow: 0 0 8px var(--sculk-amber); }
+  .lb-row.silver .lb-rank { color: #aab; }
+  .lb-row.bronze .lb-rank { color: #c8845a; }
+  .lb-rank-other { color: var(--text-muted); font-size: 13px; }
+
+  .lb-player {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .lb-avatar {
+    width: 36px; height: 36px;
+    border-radius: 4px;
+    background: var(--sculk-teal3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sculk-accent);
+    border: 1px solid var(--sculk-border);
+    image-rendering: pixelated;
+    font-family: 'Press Start 2P', monospace;
+  }
+  .lb-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-bright);
+  }
+
+  .lb-val {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--sculk-teal);
+    text-align: right;
+  }
+  .lb-val.deaths { color: var(--sculk-copper); }
+  .lb-val.kd { color: var(--sculk-amber); }
+
+  /* ─── RULES ─── */
+  #rules {
+    padding: 6rem 0;
+  }
+
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .rule-card {
+    background: var(--sculk-panel);
+    border: 1px solid var(--sculk-border);
+    border-radius: 8px;
+    padding: 1.75rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .3s, transform .2s;
+  }
+  .rule-card:hover {
+    border-color: var(--sculk-teal2);
+    transform: translateY(-3px);
+  }
+  .rule-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--sculk-teal3), transparent);
+  }
+
+  .rule-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 28px;
+    color: rgba(26,223,207,0.12);
+    position: absolute;
+    top: 16px; right: 20px;
+    line-height: 1;
+  }
+
+  .rule-icon {
+    font-size: 24px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .rule-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--sculk-teal);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  .rule-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* ─── MAP ─── */
+  #map {
+    padding: 6rem 0;
+    background: linear-gradient(180deg, transparent, rgba(10,31,34,0.4), transparent);
+  }
+
+  .map-container {
+    background: var(--sculk-panel);
+    border: 1px solid var(--sculk-border);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .map-header {
+    padding: 1.25rem 1.75rem;
+    border-bottom: 1px solid var(--sculk-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .map-title-bar {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--sculk-teal);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .map-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--sculk-teal);
+    box-shadow: 0 0 8px var(--sculk-teal);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  .map-coords {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+
+  .map-canvas {
+    width: 100%;
+    aspect-ratio: 16/7;
+    background: #060f10;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .map-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    opacity: .5;
+  }
+  .map-placeholder-icon {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 48px;
+    color: var(--sculk-teal3);
+  }
+  .map-placeholder-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-align: center;
+    line-height: 2;
+  }
+
+  /* pixel grid on map */
+  .map-canvas::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(26,223,207,0.04) 16px),
+      repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(26,223,207,0.04) 16px);
+    pointer-events: none;
+  }
+
+  /* ─── JOIN ─── */
+  #join {
+    padding: 6rem 0;
+  }
+
+  .join-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .join-info h3 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 13px;
+    color: var(--sculk-teal);
+    margin-bottom: 1rem;
+    line-height: 1.8;
+  }
+  .join-info p {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+  }
+
+  .requirement-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .requirement-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+  .req-check {
+    width: 20px; height: 20px;
+    border: 1px solid var(--sculk-teal3);
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: var(--sculk-teal);
+    font-size: 12px;
+  }
+
+  .join-form {
+    background: var(--sculk-panel);
+    border: 1px solid var(--sculk-border);
+    border-radius: 8px;
+    padding: 2rem;
+  }
+  .join-form h3 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--sculk-teal);
+    margin-bottom: 1.5rem;
+    letter-spacing: 1px;
+  }
+
+  .form-group {
+    margin-bottom: 1.2rem;
+  }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    background: rgba(5,14,15,0.8);
+    border: 1px solid var(--sculk-border);
+    border-radius: 4px;
+    padding: 10px 14px;
+    color: var(--text-bright);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    border-color: var(--sculk-teal2);
+  }
+  .form-group textarea { min-height: 90px; resize: vertical; }
+  .form-group select option { background: #0a1f22; }
+
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--sculk-teal3);
+    border: 2px solid var(--sculk-teal);
+    border-radius: 4px;
+    color: var(--sculk-accent);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all .2s;
+    margin-top: 0.5rem;
+  }
+  .btn-submit:hover {
+    background: var(--sculk-teal2);
+    box-shadow: 0 0 20px rgba(26,223,207,0.3);
+  }
+
+  /* ─── COMMUNITY ─── */
+  #community {
+    padding: 6rem 0;
+    background: linear-gradient(180deg, transparent, rgba(10,31,34,0.5), transparent);
+  }
+
+  .community-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .social-card {
+    background: var(--sculk-panel);
+    border: 1px solid var(--sculk-border);
+    border-radius: 8px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    transition: all .25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .social-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity .25s;
+  }
+  .social-card:hover { transform: translateY(-4px); }
+  .social-card:hover::after { opacity: 1; }
+
+  .social-card.discord { --c: #5865F2; }
+  .social-card.youtube { --c: #FF0000; }
+  .social-card.tiktok  { --c: #69C9D0; }
+  .social-card.instagram { --c: #E1306C; }
+
+  .social-card:hover { border-color: var(--c); box-shadow: 0 0 20px rgba(var(--cr),var(--cg),var(--cb),0.15); }
+  .social-card::after { background: var(--c); }
+
+  .social-icon {
+    width: 56px; height: 56px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: background .25s;
+  }
+  .social-card:hover .social-icon { background: rgba(255,255,255,0.1); }
+
+  .social-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--text-bright);
+    letter-spacing: 1px;
+  }
+  .social-handle {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 3rem 0;
+    border-top: 1px solid var(--sculk-border);
+    text-align: center;
+  }
+  .footer-logo {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: var(--sculk-teal);
+    text-shadow: 0 0 10px var(--sculk-teal);
+    margin-bottom: 1rem;
+  }
+  .footer-logo span { color: var(--sculk-amber); }
+  footer p {
+    font-size: 12px;
+    color: var(--text-muted);
+    opacity: .6;
+    letter-spacing: 1px;
+  }
+
+  /* ─── MOBILE ─── */
+  @media (max-width: 768px) {
+    nav { padding: 0 1.25rem; }
+    .nav-links { display: none; }
+    .hero-stats { gap: 1.5rem; }
+    .lb-header, .lb-row { grid-template-columns: 40px 1fr 80px; }
+    .lb-header span:nth-child(4),
+    .lb-header span:nth-child(5),
+    .lb-row .lb-val:nth-child(4),
+    .lb-row .lb-val:nth-child(5) { display: none; }
+    .join-inner { grid-template-columns: 1fr; }
+  }
+
+  /* ─── COUNTDOWN ─── */
+  .cd-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--sculk-panel);
+    border: 1px solid var(--sculk-border);
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    min-width: 110px;
+  }
+  .cd-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    color: var(--sculk-teal);
+    text-shadow: 0 0 16px var(--sculk-teal);
+    line-height: 1;
+  }
+  .cd-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
+  .cd-sep {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 2.5rem;
+    color: var(--sculk-teal3);
+    align-self: center;
+    padding-bottom: 20px;
+    opacity: .7;
+  }
+
+  /* ─── TEAM ─── */
+  .team-category-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--sculk-teal);
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    padding-left: 4px;
+    opacity: .8;
+  }
+  .team-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .team-card {
+    background: var(--sculk-panel);
+    border: 1px solid var(--sculk-border);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color .2s, transform .2s;
+    min-width: 200px;
+  }
+  .team-card:hover {
+    border-color: var(--sculk-teal2);
+    transform: translateY(-2px);
+  }
+  .team-card.owner-main {
+    border-color: rgba(224,160,32,0.4);
+    box-shadow: 0 0 14px rgba(224,160,32,0.08);
+  }
+  .team-card.creator {
+    border-color: rgba(255,107,107,0.2);
+  }
+  .team-avatar {
+    width: 40px; height: 40px;
+    border-radius: 6px;
+    background: var(--sculk-teal3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 13px;
+    color: var(--sculk-accent);
+    border: 1px solid var(--sculk-border);
+    flex-shrink: 0;
+  }
+  .team-card.owner-main .team-avatar {
+    background: rgba(224,160,32,0.2);
+    border-color: rgba(224,160,32,0.4);
+    color: var(--sculk-amber);
+  }
+  .team-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-bright);
+    line-height: 1.3;
+  }
+  .team-role {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    letter-spacing: 1px;
+  }
+
+  /* ─── LORE ─── */
+  .lore-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+  .lore-card {
+    background: var(--sculk-panel);
+    border: 1px solid var(--sculk-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .3s, transform .2s;
+  }
+  .lore-card:hover {
+    border-color: var(--sculk-teal2);
+    transform: translateY(-3px);
+  }
+  .lore-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .lore-tab {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    padding: 10px 18px;
+    background: transparent;
+    border: 1px solid var(--sculk-border);
+    border-radius: 4px;
+    color: var(--text-muted);
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all .2s;
+  }
+  .lore-tab:hover, .lore-tab.active {
+    border-color: var(--sculk-teal);
+    color: var(--sculk-teal);
+    background: rgba(26,223,207,0.06);
+  }
+  .lore-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .lore-card {
+    background: var(--sculk-panel);
+    border: 1px solid var(--sculk-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .3s, transform .2s;
+  }
+  .lore-card:hover {
+    border-color: var(--sculk-teal2);
+    transform: translateY(-3px);
+  }
+  .lore-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--sculk-teal3), transparent);
+  }
+  .lore-tag {
+    font-size: 11px;
+    color: var(--sculk-teal);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .lore-date {
+    font-size: 11px;
+    color: var(--text-muted);
+    opacity: .6;
+    margin-bottom: 1rem;
+  }
+  .lore-content {
+    font-size: 15px;
+    color: var(--text-bright);
+    line-height: 1.8;
+    font-style: italic;
+    border-left: 2px solid var(--sculk-teal3);
+    padding-left: 1rem;
+  }
+  .lore-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 12px;
+    opacity: .6;
+  }
+  .lore-media-placeholder {
+    aspect-ratio: 16/9;
+    background: rgba(5,14,15,0.8);
+    border: 1px dashed rgba(26,223,207,0.15);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .lore-play-btn {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: 2px solid var(--sculk-teal3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    color: var(--sculk-teal);
+    opacity: .5;
+  }
+  .lore-card.hidden { display: none; }
+
+
+  .fade-up {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">CHAOS<span>SMP</span></div>
+  <ul class="nav-links">
+    <li><a href="#home">Főoldal</a></li>
+    <li><a href="#countdown">Nyitás</a></li>
+    <li><a href="#team">Csapat</a></li>
+    <li><a href="#lore">Lore</a></li>
+    <li><a href="#rules">Szabályok</a></li>
+    <li><a href="#map">Térkép</a></li>
+    <li><a href="#join">Csatlakozás</a></li>
+    <li><a href="#community">Közösség</a></li>
+  </ul>
+  <div class="nav-social">
+    <a href="https://discord.gg/EJnNTtAP72" target="_blank" title="Discord">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+    </a>
+    <a href="https://www.youtube.com/@ChaosGang-TheOnly" target="_blank" title="YouTube">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+    <a href="https://www.tiktok.com/@chaos.smp....1" target="_blank" title="TikTok">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+    </a>
+    <a href="https://www.instagram.com/chaosgangofficial/" target="_blank" title="Instagram">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="home">
+  <div class="hero-bg"></div>
+  <svg class="sculk-veins" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+    <path d="M0 350 Q200 200 400 350 T800 350 T1200 350" stroke="#1adfcf" stroke-width="1.5" fill="none"/>
+    <path d="M100 0 Q250 350 100 700" stroke="#1adfcf" stroke-width="1" fill="none"/>
+    <path d="M1100 0 Q950 350 1100 700" stroke="#1adfcf" stroke-width="1" fill="none"/>
+    <path d="M0 200 Q600 400 1200 200" stroke="#1adfcf" stroke-width="0.8" fill="none"/>
+    <path d="M0 500 Q600 300 1200 500" stroke="#1adfcf" stroke-width="0.8" fill="none"/>
+    <circle cx="400" cy="350" r="3" fill="#1adfcf" opacity="0.6"/>
+    <circle cx="800" cy="350" r="3" fill="#1adfcf" opacity="0.6"/>
+    <circle cx="600" cy="200" r="2" fill="#1adfcf" opacity="0.4"/>
+    <circle cx="600" cy="500" r="2" fill="#1adfcf" opacity="0.4"/>
+  </svg>
+
+  <div class="hero-content">
+    <div class="hero-badge">⚡ Magyar Minecraft SMP Szerver</div>
+    <div class="hero-logo">
+      <div class="hero-title">CHAOS</div>
+      <div class="hero-sub">SMP</div>
+    </div>
+    <p class="hero-desc">Egy sötét sculk-birodalom mélyén vár rád a káosz. Csatlakozz a legjobb magyar Minecraft SMP szerverhez — ha mersz.</p>
+    <div class="hero-ctas">
+      <a href="#join" class="btn-primary">⚔ Csatlakozás</a>
+      <a href="#lore" class="btn-secondary">Lore Leaks</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-num">12+</span>
+        <div class="stat-label">Discord tag</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">S01</span>
+        <div class="stat-label">Évad</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">1.21.1</span>
+        <div class="stat-label">Verzió</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <svg width="14" height="20" viewBox="0 0 14 20" fill="none">
+      <rect x="1" y="1" width="12" height="18" rx="6" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="6" y="4" width="2" height="4" rx="1" fill="currentColor"/>
+    </svg>
+  </div>
+</section>
+
+<!-- COUNTDOWN -->
+<section id="countdown" style="padding:4rem 0; background: linear-gradient(180deg, transparent, rgba(10,31,34,0.6), transparent);">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-tag">// Nyitás</span>
+      <h2 class="section-title">Szerver Megnyitó</h2>
+      <div class="section-divider"></div>
+      <p style="margin-top:1rem;font-size:14px;color:var(--text-muted);">2026. Június 26. — A káosz elkezdődik</p>
+    </div>
+    <div class="fade-up" style="display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;" id="countdown-wrap">
+      <div class="cd-box"><span class="cd-num" id="cd-days">00</span><span class="cd-label">Nap</span></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-box"><span class="cd-num" id="cd-hours">00</span><span class="cd-label">Óra</span></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-box"><span class="cd-num" id="cd-mins">00</span><span class="cd-label">Perc</span></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-box"><span class="cd-num" id="cd-secs">00</span><span class="cd-label">Másodperc</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- RULES -->
+<section id="rules">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-tag">// Szabályzat</span>
+      <h2 class="section-title">Szerver Szabályok</h2>
+      <div class="section-divider"></div>
+    </div>
+
+    <div class="rules-grid">
+      <div class="rule-card fade-up">
+        <span class="rule-num">01</span>
+        <span class="rule-icon">⚔️</span>
+        <div class="rule-title">PvP & Fair Play</div>
+        <p class="rule-text">A PvP engedélyezett, de a spawn zónában tilos. Exploitok és cheatek használata azonnali bant von maga után.</p>
+      </div>
+
+      <div class="rule-card fade-up">
+        <span class="rule-num">02</span>
+        <span class="rule-icon">🏗️</span>
+        <div class="rule-title">Griefing</div>
+        <p class="rule-text">Mások építményeinek tönkretétele tilos. Lopás csak háborús időszakban, deklarált ellenfelektől megengedett.</p>
+      </div>
+
+      <div class="rule-card fade-up">
+        <span class="rule-num">03</span>
+        <span class="rule-icon">💬</span>
+        <div class="rule-title">Tisztelet</div>
+        <p class="rule-text">Mindenkit tisztelettel kell kezelni. Rasszista, szexista vagy bántó viselkedés automatikus bant eredményez.</p>
+      </div>
+
+      <div class="rule-card fade-up">
+        <span class="rule-num">04</span>
+        <span class="rule-icon">🔨</span>
+        <div class="rule-title">Exploit Tilalom</div>
+        <p class="rule-text">Duplication bug-ok, X-ray és minden más illegitim előny használata szigorúan tilos.</p>
+      </div>
+
+      <div class="rule-card fade-up">
+        <span class="rule-num">05</span>
+        <span class="rule-icon">📱</span>
+        <div class="rule-title">Közösség</div>
+        <p class="rule-text">A Discord szerver az elsődleges kommunikációs csatorna. Kérd az adminok engedélyét nagyobb projektekhez.</p>
+      </div>
+
+      <div class="rule-card fade-up">
+        <span class="rule-num">06</span>
+        <span class="rule-icon">👑</span>
+        <div class="rule-title">Admin Döntések</div>
+        <p class="rule-text">Az adminok döntése végleges. Fellebbezni a Discord ban-appeal csatornán lehet, udvariasan.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAP -->
+<section id="map">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-tag">// Világ</span>
+      <h2 class="section-title">Szerver Térkép</h2>
+      <div class="section-divider"></div>
+    </div>
+
+    <div class="map-container fade-up">
+      <div class="map-header">
+        <div class="map-title-bar">
+          <div class="map-dot"></div>
+          <span>CHAOS SMP — Overworld Térkép</span>
+        </div>
+        <div class="map-coords">X: 0 / Y: 64 / Z: 0</div>
+      </div>
+      <div class="map-canvas">
+        <div class="map-placeholder">
+          <div class="map-placeholder-icon">🗺</div>
+          <div class="map-placeholder-text">
+            Élő térkép hamarosan<br>
+            <span style="font-size:9px;opacity:.6;">[ dynmap / bluemap link ide kerül ]</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:1rem;font-size:12px;color:var(--text-muted);opacity:.6;">Dynmap / BlueMap linket add meg és beillesztjük az iframe-be</p>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="team" style="padding:6rem 0;">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-tag">// Csapat</span>
+      <h2 class="section-title">A Chaos Csapat</h2>
+      <div class="section-divider"></div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:2.5rem;">
+
+      <!-- Tulajdonosok -->
+      <div class="fade-up">
+        <div class="team-category-label">👑 Fő Owner</div>
+        <div class="team-grid">
+          <div class="team-card owner-main">
+            <div class="team-avatar">R</div>
+            <div class="team-info">
+              <div class="team-name">⟨ • Roky0317 • ⟩</div>
+              <div class="team-role" style="color:var(--sculk-amber);">Fő Owner</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fade-up">
+        <div class="team-category-label">🔱 Ownerek</div>
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="team-avatar">R</div>
+            <div class="team-info">
+              <div class="team-name">⟨ • Roky0317 • ⟩</div>
+              <div class="team-role">Owner</div>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar">H</div>
+            <div class="team-info">
+              <div class="team-name">●《JUST HATER》●</div>
+              <div class="team-role">Owner</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fade-up">
+        <div class="team-category-label">⚙️ Managerek</div>
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="team-avatar">F</div>
+            <div class="team-info">
+              <div class="team-name">Frimpy</div>
+              <div class="team-role">Manager</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fade-up">
+        <div class="team-category-label">🎬 Híres Játékosok</div>
+        <div class="team-grid">
+          <div class="team-card creator">
+            <div class="team-avatar">H</div>
+            <div class="team-info">
+              <div class="team-name">●《JUST HATER》●</div>
+              <div class="team-role" style="color:#ff6b6b;">Creator</div>
+            </div>
+          </div>
+          <div class="team-card creator">
+            <div class="team-avatar">F</div>
+            <div class="team-info">
+              <div class="team-name">Frimpy</div>
+              <div class="team-role" style="color:#ff6b6b;">Creator</div>
+            </div>
+          </div>
+          <div class="team-card creator">
+            <div class="team-avatar">S</div>
+            <div class="team-info">
+              <div class="team-name">ꜱᴀᴀʏʀɪɴ</div>
+              <div class="team-role" style="color:#ff6b6b;">Creator</div>
+            </div>
+          </div>
+          <div class="team-card creator">
+            <div class="team-avatar">Ω</div>
+            <div class="team-info">
+              <div class="team-name">𝕺𝖒𝖊𝖌𝖆</div>
+              <div class="team-role" style="color:#ff6b6b;">Creator</div>
+            </div>
+          </div>
+          <div class="team-card creator">
+            <div class="team-avatar">I</div>
+            <div class="team-info">
+              <div class="team-name">IcraM</div>
+              <div class="team-role" style="color:#ff6b6b;">Creator</div>
+            </div>
+          </div>
+          <div class="team-card creator">
+            <div class="team-avatar">A</div>
+            <div class="team-info">
+              <div class="team-name">AdronX MK4</div>
+              <div class="team-role" style="color:#ff6b6b;">Creator</div>
+            </div>
+          </div>
+          <div class="team-card creator">
+            <div class="team-avatar">N</div>
+            <div class="team-info">
+              <div class="team-name">NoT_N4ND1</div>
+              <div class="team-role" style="color:#ff6b6b;">Creator</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fade-up">
+        <div class="team-category-label">🎮 Játékosok</div>
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="team-avatar">T</div>
+            <div class="team-info">
+              <div class="team-name">! Th3V1kt0r_</div>
+              <div class="team-role">Játékos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- LORE -->
+<section id="lore" style="padding:6rem 0; background: linear-gradient(180deg, transparent, rgba(10,31,34,0.5), transparent);">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-tag">// Lore Leaks</span>
+      <h2 class="section-title">A Világ Titkai</h2>
+      <div class="section-divider"></div>
+      <p style="margin-top:1rem;font-size:14px;color:var(--text-muted);">Töredékek a Chaos SMP lore-jából — figyeld a frissítéseket...</p>
+    </div>
+
+    <div class="fade-up">
+      <div class="lore-tabs">
+        <button class="lore-tab active" onclick="switchLore('all')">⚡ Mind</button>
+        <button class="lore-tab" onclick="switchLore('text')">📜 Szöveg</button>
+        <button class="lore-tab" onclick="switchLore('image')">🖼 Kép</button>
+        <button class="lore-tab" onclick="switchLore('video')">🎬 Videó</button>
+      </div>
+
+      <div class="lore-grid" id="lore-grid">
+
+        <div class="lore-card lore-text-card" data-type="text">
+          <div class="lore-tag">📜 Szöveg Leak</div>
+          <div class="lore-date">2026. Tavasz</div>
+          <p class="lore-content">"Egy természetfeletti erő világköröli útján nevén tudott: <strong style="color:var(--sculk-teal)">Atherion</strong>. Létrehozott az egyik világba egy teremtményt — aki ugyanúgy természetfeletti lény — akit úgy nevezett el, hogy <strong style="color:var(--sculk-copper)">Khaor</strong>. Feladata az volt, hogy megvédje ezt a világot. De ehelyett... ő elpusztítja."</p>
+          <div class="lore-meta">— Atherion krónikái, I. fejezet</div>
+        </div>
+
+        <div class="lore-card lore-text-card" data-type="text">
+          <div class="lore-tag">📜 Szöveg Leak</div>
+          <div class="lore-date">Hamarosan</div>
+          <div style="display:flex;align-items:center;justify-content:center;min-height:80px;opacity:.4;">
+            <span style="font-family:'Press Start 2P',monospace;font-size:11px;color:var(--sculk-teal3);">??? TITKOSÍTOTT ???</span>
+          </div>
+        </div>
+
+        <div class="lore-card lore-image-card" data-type="image">
+          <div class="lore-tag">🖼 Kép Leak</div>
+          <div class="lore-date">Hamarosan</div>
+          <div class="lore-media-placeholder">
+            <span style="font-family:'Press Start 2P',monospace;font-size:18px;color:var(--sculk-teal3);">?</span>
+            <span style="font-size:11px;color:var(--text-muted);margin-top:8px;letter-spacing:1px;">Kép hamarosan</span>
+          </div>
+        </div>
+
+        <div class="lore-card lore-video-card" data-type="video">
+          <div class="lore-tag">🎬 Videó Leak</div>
+          <div class="lore-date">Hamarosan</div>
+          <div class="lore-media-placeholder">
+            <div class="lore-play-btn">▶</div>
+            <span style="font-size:11px;color:var(--text-muted);margin-top:8px;letter-spacing:1px;">Videó hamarosan</span>
+          </div>
+        </div>
+
+        <div class="lore-card lore-locked" data-type="text">
+          <div class="lore-tag">🔐 Titkosított</div>
+          <div class="lore-date">???</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;opacity:.4;">
+            <span style="font-family:'Press Start 2P',monospace;font-size:36px;color:var(--sculk-teal3);">?</span>
+            <span style="font-size:12px;color:var(--text-muted);text-align:center;">Ez a leak még nem publikus...</span>
+          </div>
+        </div>
+
+        <div class="lore-card lore-locked" data-type="image">
+          <div class="lore-tag">🔐 Titkosított</div>
+          <div class="lore-date">???</div>
+          <div class="lore-media-placeholder" style="opacity:.35;">
+            <span style="font-family:'Press Start 2P',monospace;font-size:36px;color:var(--sculk-teal3);">?</span>
+            <span style="font-size:12px;color:var(--text-muted);margin-top:8px;">Hamarosan feltárul</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOIN -->
+<section id="join">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-tag">// Jelentkezés</span>
+      <h2 class="section-title">Csatlakozz A Szerverhez</h2>
+      <div class="section-divider"></div>
+    </div>
+
+    <div class="join-inner">
+      <div class="join-info fade-up">
+        <h3>Mire van szükség?</h3>
+        <p>A Chaos SMP egy whitelisted szerver. Ahhoz, hogy játszhass velünk, töltsd ki a jelentkezési űrlapot és várj az adminok visszajelzésére a Discordon.</p>
+        <ul class="requirement-list">
+          <li><span class="req-check">✓</span>Minecraft Java Edition (1.21+)</li>
+          <li><span class="req-check">✓</span>Legalább 13 éves kor</li>
+          <li><span class="req-check">✓</span>Discord fiók</li>
+          <li><span class="req-check">✓</span>Aktív részvétel (min. heti 3x)</li>
+          <li><span class="req-check">✓</span>Magyar nyelvtudás</li>
+        </ul>
+      </div>
+
+      <div class="join-form fade-up">
+        <h3>Jelentkezési Űrlap</h3>
+        <div class="form-group">
+          <label>Minecraft felhasználónév</label>
+          <input type="text" placeholder="pl. Steve_Pro">
+        </div>
+        <div class="form-group">
+          <label>Discord tag</label>
+          <input type="text" placeholder="pl. username#0000">
+        </div>
+        <div class="form-group">
+          <label>Korod</label>
+          <input type="number" placeholder="pl. 18">
+        </div>
+        <div class="form-group">
+          <label>Miért szeretnél csatlakozni?</label>
+          <textarea placeholder="Írd le pár mondatban..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Hol hallottál rólunk?</label>
+          <select>
+            <option value="">Válassz...</option>
+            <option>YouTube</option>
+            <option>TikTok</option>
+            <option>Instagram</option>
+            <option>Discord</option>
+            <option>Barát ajánlotta</option>
+          </select>
+        </div>
+        <button class="btn-submit" onclick="alert('Köszönjük a jelentkezést! Hamarosan értesítünk Discordon. 🎮')">⚡ Jelentkezés Küldése</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMUNITY -->
+<section id="community">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-tag">// Közösség</span>
+      <h2 class="section-title">Csatlakozz Hozzánk</h2>
+      <div class="section-divider"></div>
+    </div>
+
+    <div class="community-grid">
+      <a href="https://discord.gg/EJnNTtAP72" target="_blank" class="social-card discord fade-up">
+        <div class="social-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="#5865F2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        </div>
+        <div class="social-name">Discord</div>
+        <div class="social-handle">Chaos SMP Server</div>
+      </a>
+
+      <a href="https://www.youtube.com/@ChaosGang-TheOnly" target="_blank" class="social-card youtube fade-up">
+        <div class="social-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </div>
+        <div class="social-name">YouTube</div>
+        <div class="social-handle">@ChaosGang-TheOnly</div>
+      </a>
+
+      <a href="https://www.tiktok.com/@chaos.smp....1" target="_blank" class="social-card tiktok fade-up">
+        <div class="social-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="#69C9D0"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+        </div>
+        <div class="social-name">TikTok</div>
+        <div class="social-handle">@chaos.smp</div>
+      </a>
+
+      <a href="https://www.instagram.com/chaosgangofficial/" target="_blank" class="social-card instagram fade-up">
+        <div class="social-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="#E1306C"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </div>
+        <div class="social-name">Instagram</div>
+        <div class="social-handle">@chaosgangofficial</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-logo">CHAOS<span>SMP</span></div>
+    <p>© 2025 Chaos SMP — Minden jog fenntartva</p>
+    <p style="margin-top:8px;">Made with ⚡ for the community</p>
+  </div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Countdown to June 26, 2026
+  const target = new Date('2026-06-26T00:00:00');
+  function updateCountdown() {
+    const now = new Date();
+    const diff = target - now;
+    if (diff <= 0) return;
+    const days = Math.floor(diff / (1000*60*60*24));
+    const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+    const mins = Math.floor((diff % (1000*60*60)) / (1000*60));
+    const secs = Math.floor((diff % (1000*60)) / 1000);
+    document.getElementById('cd-days').textContent = String(days).padStart(2,'0');
+    document.getElementById('cd-hours').textContent = String(hours).padStart(2,'0');
+    document.getElementById('cd-mins').textContent = String(mins).padStart(2,'0');
+    document.getElementById('cd-secs').textContent = String(secs).padStart(2,'0');
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // Lore tab filter
+  function switchLore(type) {
+    document.querySelectorAll('.lore-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.querySelectorAll('.lore-card').forEach(c => {
+      if (type === 'all' || c.dataset.type === type) {
+        c.classList.remove('hidden');
+      } else {
+        c.classList.add('hidden');
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
