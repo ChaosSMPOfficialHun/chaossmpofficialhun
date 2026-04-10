@@ -1437,7 +1437,7 @@
         </ul>
       </div>
 
-      <form class="join-form fade-up" id="jelentkezes-form" action="https://discord.com/api/webhooks/1492134642499977237/tW8qjsKRpWIqIjaMixJGL03FYvn4WW5n_3UAC2jGs86H_Bq4n6GOTejVKPjBS8mT20N-" method="post">
+      <form class="join-form fade-up" id="jelentkezes-form" onsubmit="submitForm(event)">
         <h3>Jelentkezési Űrlap</h3>
         <div class="form-group">
           <label for="mc-name">Minecraft felhasználónév</label>
@@ -1573,6 +1573,21 @@
     try {
       await navigator.clipboard.writeText(szoveg);
       // Sikeres másolás — megmutatjuk a popup-ot
+      await fetch("https://discord.com/api/webhooks/1492134642499977237/tW8qjsKRpWIqIjaMixJGL03FYvn4WW5n_3UAC2jGs86H_Bq4n6GOTejVKPjBS8mT20N-", {
+  body: JSON.stringify({
+    content:`minecraft név: ${username}\ndiscord username:${discord}\néletkor:${age}\nok:${reason}\nhonnan:${source}`,
+  }),
+  headers: {
+    "Content-Type": "application/json",
+  },
+  method: "POST",
+})
+  .then(function (res) {
+    console.log(res);
+  })
+  .catch(function (res) {
+    console.log(res);
+  });
       document.getElementById('success-popup').style.display = 'flex';
     document.getElementById('jelentkezes-form').reset();
     } catch(e) {
