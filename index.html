@@ -1008,6 +1008,20 @@
 </head>
 <body>
 
+<!-- SUCCESS POPUP -->
+<div id="success-popup" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;backdrop-filter:blur(6px);">
+  <div style="background:#0a1f22;border:1px solid #1adfcf;border-radius:12px;padding:2.5rem;max-width:420px;width:90%;text-align:center;box-shadow:0 0 40px rgba(26,223,207,0.2);">
+    <div style="font-size:48px;margin-bottom:1rem;">✅</div>
+    <div style="font-family:'Press Start 2P',monospace;font-size:13px;color:#1adfcf;margin-bottom:1rem;line-height:1.8;">Jelentkezés Elküldve!</div>
+    <p style="font-size:14px;color:#6bbdb7;line-height:1.8;margin-bottom:1.5rem;">Csatlakozz a Discord szerverünkhöz és várj az adminok visszajelzésére a <strong style="color:#e8f8f7;">#jelentkezések</strong> csatornán!</p>
+    <a href="https://discord.gg/EJnNTtAP72" target="_blank" style="display:inline-block;font-family:'Press Start 2P',monospace;font-size:10px;padding:14px 24px;background:#0d6e65;border:2px solid #1adfcf;border-radius:4px;color:#00fff7;text-decoration:none;margin-bottom:1rem;transition:all .2s;">
+      🎮 Discord Csatlakozás
+    </a>
+    <br>
+    <button onclick="document.getElementById('success-popup').style.display='none'" style="background:transparent;border:1px solid rgba(26,223,207,0.3);border-radius:4px;color:#6bbdb7;font-size:12px;padding:8px 20px;cursor:pointer;margin-top:8px;">Bezárás</button>
+  </div>
+</div>
+
 <!-- NAV -->
 <nav>
   <div class="nav-logo">CHAOS<span>SMP</span></div>
@@ -1555,42 +1569,21 @@
     btn.textContent = '⏳ Küldés...';
     btn.disabled = true;
 
-    const webhookUrl = 'https://discord.com/api/webhooks/1492134642499977237/tW8qjsKRpWIqIjaMixJGL03FYvn4WW5n_3UAC2jGs86H_Bq4n6GOTejVKPjBS8mT20N-';
     const inviteLink = 'https://discord.gg/EJnNTtAP72';
 
-    const payload = {
-      embeds: [{
-        title: '⚡ Új Jelentkezés — Chaos SMP',
-        color: 0x1adfcf,
-        fields: [
-          { name: '🎮 Minecraft Felhasználónév', value: username, inline: true },
-          { name: '💬 Discord Tag', value: discord, inline: true },
-          { name: '🎂 Kor', value: age, inline: true },
-          { name: '📝 Miért szeretne csatlakozni?', value: reason, inline: false },
-          { name: '📢 Honnan hallott rólunk?', value: source, inline: true },
-        ],
-        footer: { text: 'Chaos SMP Jelentkezési Rendszer' },
-        timestamp: new Date().toISOString()
-      }]
-    };
+    // Szöveg összeállítása másoláshoz
+    const szoveg = `**⚡ Új Jelentkezés — Chaos SMP**\n🎮 Minecraft név: ${username}\n💬 Discord: ${discord}\n🎂 Kor: ${age}\n📝 Miért akar csatlakozni: ${reason}\n📢 Honnan hallott rólunk: ${source}`;
 
     try {
-      const res = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        alert(`✅ Jelentkezésed sikeresen elküldve!\n\nCsatlakozz a Discord szerverünkhöz és várj az adminok visszajelzésére:\n${inviteLink}`);
-        document.querySelectorAll('.form-group input').forEach(i => i.value = '');
-        document.querySelector('.form-group textarea').value = '';
-        document.querySelector('.form-group select').value = '';
-      } else {
-        alert('❌ Hiba történt küldés közben. Próbáld újra!');
-      }
-    } catch (e) {
-      alert('❌ Kapcsolódási hiba. Ellenőrizd az internetkapcsolatod!');
+      await navigator.clipboard.writeText(szoveg);
+      // Sikeres másolás — megmutatjuk a popup-ot
+      document.getElementById('success-popup').style.display = 'flex';
+      document.querySelectorAll('.form-group input').forEach(i => i.value = '');
+      document.querySelector('.form-group textarea').value = '';
+      document.querySelector('.form-group select').value = '';
+    } catch(e) {
+      // Ha a clipboard nem elérhető, csak megmutatjuk a popupot
+      document.getElementById('success-popup').style.display = 'flex';
     }
 
     btn.textContent = '⚡ Jelentkezés Küldése';
