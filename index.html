@@ -1452,7 +1452,7 @@
             <option>Barát ajánlotta</option>
           </select>
         </div>
-        <button class="btn-submit" onclick="alert('Köszönjük a jelentkezést! Hamarosan értesítünk Discordon. 🎮')">⚡ Jelentkezés Küldése</button>
+        <button class="btn-submit" id="submit-btn" onclick="submitForm()">⚡ Jelentkezés Küldése</button>
       </div>
     </div>
   </div>
@@ -1507,7 +1507,7 @@
 <footer>
   <div class="container">
     <div class="footer-logo">CHAOS<span>SMP</span></div>
-    <p>© 2025 Chaos SMP — Minden jog fenntartva</p>
+    <p>© 2026 Chaos SMP — Minden jog fenntartva</p>
     <p style="margin-top:8px;">Made with ⚡ for the community</p>
   </div>
 </footer>
@@ -1537,6 +1537,65 @@
   }
   updateCountdown();
   setInterval(updateCountdown, 1000);
+
+  // Form submission
+  async function submitForm() {
+    const username = document.querySelectorAll('.form-group input')[0].value.trim();
+    const discord = document.querySelectorAll('.form-group input')[1].value.trim();
+    const age = document.querySelectorAll('.form-group input')[2].value.trim();
+    const reason = document.querySelector('.form-group textarea').value.trim();
+    const source = document.querySelector('.form-group select').value;
+
+    if (!username || !discord || !age || !reason || !source) {
+      alert('❌ Kérlek tölts ki minden mezőt!');
+      return;
+    }
+
+    const btn = document.getElementById('submit-btn');
+    btn.textContent = '⏳ Küldés...';
+    btn.disabled = true;
+
+    const webhookUrl = 'https://discord.com/api/webhooks/1492134642499977237/tW8qjsKRpWIqIjaMixJGL03FYvn4WW5n_3UAC2jGs86H_Bq4n6GOTejVKPjBS8mT20N-';
+    const inviteLink = 'https://discord.gg/EJnNTtAP72';
+
+    const payload = {
+      embeds: [{
+        title: '⚡ Új Jelentkezés — Chaos SMP',
+        color: 0x1adfcf,
+        fields: [
+          { name: '🎮 Minecraft Felhasználónév', value: username, inline: true },
+          { name: '💬 Discord Tag', value: discord, inline: true },
+          { name: '🎂 Kor', value: age, inline: true },
+          { name: '📝 Miért szeretne csatlakozni?', value: reason, inline: false },
+          { name: '📢 Honnan hallott rólunk?', value: source, inline: true },
+        ],
+        footer: { text: 'Chaos SMP Jelentkezési Rendszer' },
+        timestamp: new Date().toISOString()
+      }]
+    };
+
+    try {
+      const res = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        alert(`✅ Jelentkezésed sikeresen elküldve!\n\nCsatlakozz a Discord szerverünkhöz és várj az adminok visszajelzésére:\n${inviteLink}`);
+        document.querySelectorAll('.form-group input').forEach(i => i.value = '');
+        document.querySelector('.form-group textarea').value = '';
+        document.querySelector('.form-group select').value = '';
+      } else {
+        alert('❌ Hiba történt küldés közben. Próbáld újra!');
+      }
+    } catch (e) {
+      alert('❌ Kapcsolódási hiba. Ellenőrizd az internetkapcsolatod!');
+    }
+
+    btn.textContent = '⚡ Jelentkezés Küldése';
+    btn.disabled = false;
+  }
 
   // Lore tab filter
   function switchLore(type) {
