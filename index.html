@@ -1437,27 +1437,27 @@
         </ul>
       </div>
 
-      <div class="join-form fade-up">
+      <form class="join-form fade-up" id="jelentkezes-form" onsubmit="submitForm(event)">
         <h3>Jelentkezési Űrlap</h3>
         <div class="form-group">
-          <label>Minecraft felhasználónév</label>
-          <input type="text" placeholder="pl. Steve_Pro">
+          <label for="mc-name">Minecraft felhasználónév</label>
+          <input type="text" id="mc-name" name="mc-name" placeholder="pl. Steve_Pro" required>
         </div>
         <div class="form-group">
-          <label>Discord tag</label>
-          <input type="text" placeholder="pl. username#0000">
+          <label for="discord-tag">Discord tag</label>
+          <input type="text" id="discord-tag" name="discord-tag" placeholder="pl. username#0000" required>
         </div>
         <div class="form-group">
-          <label>Korod</label>
-          <input type="number" placeholder="pl. 18">
+          <label for="kor">Korod</label>
+          <input type="number" id="kor" name="kor" placeholder="pl. 18" min="13" max="99" required>
         </div>
         <div class="form-group">
-          <label>Miért szeretnél csatlakozni?</label>
-          <textarea placeholder="Írd le pár mondatban..."></textarea>
+          <label for="indok">Miért szeretnél csatlakozni?</label>
+          <textarea id="indok" name="indok" placeholder="Írd le pár mondatban..." required></textarea>
         </div>
         <div class="form-group">
-          <label>Hol hallottál rólunk?</label>
-          <select>
+          <label for="forras">Hol hallottál rólunk?</label>
+          <select id="forras" name="forras" required>
             <option value="">Válassz...</option>
             <option>YouTube</option>
             <option>TikTok</option>
@@ -1466,8 +1466,8 @@
             <option>Barát ajánlotta</option>
           </select>
         </div>
-        <button class="btn-submit" id="submit-btn" onclick="submitForm()">⚡ Jelentkezés Küldése</button>
-      </div>
+        <button type="submit" class="btn-submit" id="submit-btn">⚡ Jelentkezés Küldése</button>
+      </form>
     </div>
   </div>
 </section>
@@ -1553,17 +1553,13 @@
   setInterval(updateCountdown, 1000);
 
   // Form submission
-  async function submitForm() {
-    const username = document.querySelectorAll('.form-group input')[0].value.trim();
-    const discord = document.querySelectorAll('.form-group input')[1].value.trim();
-    const age = document.querySelectorAll('.form-group input')[2].value.trim();
-    const reason = document.querySelector('.form-group textarea').value.trim();
-    const source = document.querySelector('.form-group select').value;
-
-    if (!username || !discord || !age || !reason || !source) {
-      alert('❌ Kérlek tölts ki minden mezőt!');
-      return;
-    }
+  async function submitForm(event) {
+    event.preventDefault();
+    const username = document.getElementById('mc-name').value.trim();
+    const discord = document.getElementById('discord-tag').value.trim();
+    const age = document.getElementById('kor').value.trim();
+    const reason = document.getElementById('indok').value.trim();
+    const source = document.getElementById('forras').value;
 
     const btn = document.getElementById('submit-btn');
     btn.textContent = '⏳ Küldés...';
@@ -1578,9 +1574,7 @@
       await navigator.clipboard.writeText(szoveg);
       // Sikeres másolás — megmutatjuk a popup-ot
       document.getElementById('success-popup').style.display = 'flex';
-      document.querySelectorAll('.form-group input').forEach(i => i.value = '');
-      document.querySelector('.form-group textarea').value = '';
-      document.querySelector('.form-group select').value = '';
+    document.getElementById('jelentkezes-form').reset();
     } catch(e) {
       // Ha a clipboard nem elérhető, csak megmutatjuk a popupot
       document.getElementById('success-popup').style.display = 'flex';
