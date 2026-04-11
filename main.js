@@ -68,13 +68,24 @@ async function submitForm(event) {
 
 // Lore tab filter
 function switchLore(type) {
-document.querySelectorAll('.lore-tab').forEach(t => t.classList.remove('active'));
-event.target.classList.add('active');
-document.querySelectorAll('.lore-card').forEach(c => {
-    if (type === 'all' || c.dataset.type === type) {
-    c.classList.remove('hidden');
-    } else {
-    c.classList.add('hidden');
-    }
-});
+    document.querySelectorAll('.lore-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.querySelectorAll('.lore-card').forEach(c => {
+        if (type === 'all' || c.dataset.type === type) {
+        c.classList.remove('hidden');
+        } else {
+        c.classList.add('hidden');
+        }
+    });
 }
+const iframe = document.getElementById('map-canvas');
+const fallback = document.getElementById('fallback');
+
+const timeout = setTimeout(() => {
+    iframe.style.display = 'none';
+    fallback.style.display = 'block';
+}, 2000);
+
+iframe.onload = () => {
+    clearTimeout(timeout);
+};

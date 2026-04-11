@@ -196,17 +196,17 @@
         </div>
         <div class="map-coords">X: 0 / Y: 64 / Z: 0</div>
       </div>
-      <div class="map-canvas">
+      <div class="map-canvas" id="fallback">
         <div class="map-placeholder">
           <div class="map-placeholder-icon">🗺</div>
           <div class="map-placeholder-text">
             Élő térkép hamarosan<br>
-            <span style="font-size:9px;opacity:.6;">[ dynmap / bluemap link ide kerül ]</span>
+            <span style="font-size:9px;opacity:.6;">szerver ofline állapotban nem mutat térképet</span>
           </div>
         </div>
       </div>
+      <iframe src="http://127.0.0.1:8123" frameborder="0" width="100%" height="800" id="map-canvas"></iframe>
     </div>
-    <p style="text-align:center;margin-top:1rem;font-size:12px;color:var(--text-muted);opacity:.6;">Dynmap / BlueMap linket add meg és beillesztjük az iframe-be</p>
   </div>
 </section>
 
