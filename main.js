@@ -1,9 +1,13 @@
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => {
-        if (e.isIntersecting) e.target.classList.add('visible');
+        if (e.isIntersecting) e.target.classList.add('visible'); else e.target.classList.remove('visible');
     });
-}, { threshold: 0.12 });
+}, { threshold: 0.15 });
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+document.addEventListener('scroll',() => {
+    document.getElementsByClassName('scroll-hint')[0].style.display = 'none';
+});
 
 // Countdown to June 26, 2026
 const target = new Date('2026-06-26T00:00:00');
