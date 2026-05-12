@@ -10,7 +10,7 @@ document.addEventListener('scroll',() => {
 });
 
 // Countdown to June 26, 2026
-const target = new Date('2026-06-26T00:00:00');
+const target = new Date('2026-06-27T00:00:00');
 function updateCountdown() {
     const now = new Date();
     const diff = target - now;
